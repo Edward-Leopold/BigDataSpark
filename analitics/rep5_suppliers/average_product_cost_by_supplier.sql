@@ -1,0 +1,1 @@
+SELECT supplier_name, avg_product_price FROM default.rep_suppliers;

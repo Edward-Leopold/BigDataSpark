@@ -1,0 +1,1 @@
+SELECT product_name, avg_rating, total_reviews FROM default.rep_product_quality;
