@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=lab2_db
+    ports:
+      - "5433:5432" 
+    volumes:
+      - ./data:/var/lib/postgresql/csv_data
+      - ./sql/postgres:/docker-entrypoint-initdb.d
+    networks:
+      - lab_network
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse_db
+    environment:
+      - CLICKHOUSE_DB=default
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=password 
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - ./sql/clickhouse:/docker-entrypoint-initdb.d
+    networks:
+      - lab_network
+
+  spark:
+    image: spark:python3
+    container_name: spark_workspace
+    user: root
+    environment:
+      - SPARK_MODE=master
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+    working_dir: /app
+    networks:
+      - lab_network
+    command: /bin/bash -c "sed -i 's/\r$$//' /app/scripts/run_pipeline.sh && /bin/bash /app/scripts/run_pipeline.sh"
+  
+networks:
+  lab_network:
+    driver: bridge
